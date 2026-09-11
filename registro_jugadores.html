@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro de Jugadores — Ranking EVO AMF</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --c0:#050f1e;--c1:#0a1628;--c2:#102040;--bd:#1a3358;--bd2:#264a7a;
+  --tx:#e8eef7;--tx2:#a8bdd8;--tx3:#6b86a8;
+  --r:#e8192c;--blue:#4a9eff;--cyan:#0ea5e9;--gold:#f5c300;--green:#2ea043;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Barlow',sans-serif;background:var(--c0);color:var(--tx);
+  min-height:100vh;padding:20px 14px 60px;line-height:1.5;
+  background-image:radial-gradient(circle at 50% 0%,#0f2744,#050f1e 55%);
+}
+.wrap{max-width:560px;margin:0 auto}
+.logo{text-align:center;margin-bottom:6px}
+.logo .t{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:2rem;letter-spacing:4px;color:var(--gold);text-transform:uppercase}
+.logo .s{font-size:.76rem;color:var(--tx3);letter-spacing:2px;text-transform:uppercase}
+.card{background:rgba(16,32,64,.6);border:1px solid var(--bd);border-radius:14px;padding:20px 18px;margin-bottom:14px}
+.ch{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.1rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+label{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.78rem;letter-spacing:1.5px;color:var(--tx3);text-transform:uppercase;margin-bottom:5px}
+input,select,textarea{
+  width:100%;padding:11px 13px;background:var(--c1);border:1px solid var(--bd2);
+  border-radius:9px;color:var(--tx);font-size:.95rem;font-family:inherit;outline:none;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--blue)}
+input::placeholder{color:#3d5878}
+.fg{margin-bottom:15px}
+.hint{font-size:.72rem;color:var(--tx3);margin-top:4px;line-height:1.4}
+.btn{
+  border:none;border-radius:10px;padding:13px 20px;font-family:'Barlow Condensed',sans-serif;
+  font-weight:800;font-size:1rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;
+}
+.btn-p{background:var(--blue);color:#fff;width:100%}
+.btn-p:disabled{background:#2a4d78;color:#6b86a8;cursor:not-allowed}
+.btn-o{background:transparent;border:1px solid var(--bd2);color:var(--tx2)}
+.btn-g{background:var(--green);color:#fff;width:100%}
+
+/* Selector de tipo */
+.tipo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+.tipo-btn{
+  background:rgba(16,32,64,.8);border:2px solid var(--bd2);border-radius:12px;
+  padding:18px 12px;text-align:center;cursor:pointer;transition:border .2s;
+}
+.tipo-btn:hover{border-color:var(--blue)}
+.tipo-btn.on{border-color:var(--blue);background:rgba(74,158,255,.12)}
+.tipo-btn .i{font-size:1.8rem;margin-bottom:6px}
+.tipo-btn .t{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.92rem;letter-spacing:1.5px;text-transform:uppercase}
+.tipo-btn .d{font-size:.7rem;color:var(--tx3);margin-top:3px}
+
+/* Buscador de jugador */
+.search-wrap{position:relative}
+.results{
+  position:absolute;left:0;right:0;top:100%;background:var(--c1);border:1px solid var(--blue);
+  border-top:none;border-radius:0 0 10px 10px;max-height:230px;overflow-y:auto;z-index:50;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);display:none;
+}
+.results div{padding:10px 13px;cursor:pointer;font-size:.9rem;border-bottom:1px solid var(--bd)}
+.results div:hover{background:rgba(74,158,255,.12)}
+.results .zona{font-size:.72rem;color:var(--tx3)}
+.picked{
+  background:rgba(46,160,67,.1);border:1px solid var(--green);border-radius:10px;
+  padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:15px;
+}
+.picked .n{flex:1;font-weight:600}
+.picked .cur{font-size:.72rem;color:var(--tx3)}
+
+/* Categorías */
+.cat-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.cat-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:1px;min-width:110px}
+.cat-opts{display:flex;gap:6px;flex:1}
+.cat-opt{
+  flex:1;padding:9px 6px;background:var(--c1);border:1px solid var(--bd2);border-radius:8px;
+  text-align:center;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:.82rem;letter-spacing:1px;text-transform:uppercase;color:var(--tx3);
+}
+.cat-opt.on{border-color:var(--gold);background:rgba(245,195,0,.12);color:var(--gold)}
+.actual-tag{font-size:.68rem;color:var(--tx3);font-style:italic}
+
+.privado{border-left:3px solid var(--gold);background:rgba(245,195,0,.04)}
+.aviso{
+  background:rgba(74,158,255,.08);border:1px solid rgba(74,158,255,.25);border-radius:10px;
+  padding:12px 14px;font-size:.82rem;color:var(--tx2);margin-bottom:14px;line-height:1.55;
+}
+.err{color:var(--r);font-size:.78rem;margin-top:4px;display:none}
+.ok-screen{text-align:center;padding:40px 20px}
+.ok-screen .i{font-size:4rem;margin-bottom:14px}
+.ok-screen h2{font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;letter-spacing:2px;color:var(--green);margin-bottom:10px;text-transform:uppercase}
+.hidden{display:none!important}
+.dev-note{
+  margin-top:30px;padding:14px;background:rgba(245,195,0,.06);border:1px dashed rgba(245,195,0,.3);
+  border-radius:10px;font-size:.76rem;color:var(--tx3);line-height:1.6;
+}
+.dev-note strong{color:var(--gold)}
+pre{background:var(--c0);border:1px solid var(--bd);border-radius:8px;padding:12px;overflow-x:auto;font-size:.72rem;color:var(--tx2);margin-top:8px;white-space:pre-wrap;word-break:break-all}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="logo">
+    <div class="t">Ranking EVO AMF</div>
+    <div class="s">Registro de jugadores · Temporada 2026-2027</div>
+  </div>
+
+  <div id="form-zone">
+
+    <div class="aviso">
+      Rellena este formulario para figurar correctamente en el ranking de la próxima temporada.
+      Los datos de contacto <strong>no se publican</strong> en ningún sitio: solo los usa la organización.
+    </div>
+
+    <!-- PASO 1: ¿Quién eres? -->
+    <div class="card">
+      <div class="ch" style="color:var(--blue)">1 · ¿Ya has jugado el ranking?</div>
+      <div class="tipo-grid">
+        <div class="tipo-btn" id="tipo-existente" onclick="setTipo('existente')">
+          <div class="i">🔁</div>
+          <div class="t">Sí, ya jugué</div>
+          <div class="d">Actualizo mis datos</div>
+        </div>
+        <div class="tipo-btn" id="tipo-nuevo" onclick="setTipo('nuevo')">
+          <div class="i">🆕</div>
+          <div class="t">Soy nuevo</div>
+          <div class="d">Primera vez</div>
+        </div>
+      </div>
+      <div class="hint">Si ya has jugado antes, elígete de la lista para no perder tus puntos y palmarés.</div>
+    </div>
+
+    <!-- PASO 2 (existente): buscar jugador -->
+    <div class="card hidden" id="card-buscar">
+      <div class="ch" style="color:var(--blue)">2 · Búscate en la lista</div>
+      <div id="picked-box"></div>
+      <div class="fg search-wrap" id="search-box">
+        <label>Escribe tu nombre tal y como aparece hoy</label>
+        <input id="q" placeholder="Ej: Osquilla, García..." autocomplete="off"
+          oninput="buscar()" onfocus="buscar()">
+        <div class="results" id="results"></div>
+        <div class="hint">Si no te encuentras, vuelve arriba y marca "Soy nuevo".</div>
+      </div>
+    </div>
+
+    <!-- PASO 3: datos -->
+    <div class="card hidden" id="card-datos">
+      <div class="ch" style="color:var(--blue)">3 · Tus datos</div>
+
+      <div class="fg">
+        <label>Nombre con el que juegas <span style="color:var(--r)">*</span></label>
+        <input id="f-nombre" placeholder="Como quieres aparecer en el ranking">
+        <div class="hint" id="hint-nombre">Este es el nombre público que se ve en las clasificaciones.</div>
+        <div class="err" id="err-nombre">Escribe el nombre con el que juegas</div>
+      </div>
+
+      <div class="fg">
+        <label>Alias / Nombres de equipo</label>
+        <input id="f-alias" placeholder="Ej: Los Tigres, Osqui, Osquilla">
+        <div class="hint">Separados por comas. Sirve para reconocerte si te inscriben con otro nombre.</div>
+      </div>
+
+      <div class="fg">
+        <label>Zona / Operador <span style="color:var(--r)">*</span></label>
+        <select id="f-zona">
+          <option value="">Seleccionar zona...</option>
+        </select>
+        <div class="err" id="err-zona">Selecciona tu zona</div>
+      </div>
+    </div>
+
+    <!-- PASO 4: categorías -->
+    <div class="card hidden" id="card-cats">
+      <div class="ch" style="color:var(--gold)">4 · Categoría que solicitas</div>
+      <div class="aviso" style="background:rgba(245,195,0,.06);border-color:rgba(245,195,0,.25)">
+        Esto es una <strong>solicitud</strong>, no una elección. La organización revisa cada caso
+        según los resultados y las bases del ranking.
+      </div>
+
+      <div class="cat-row">
+        <div class="cat-lbl" style="color:var(--r)">⚡ Movimiento</div>
+        <div class="cat-opts">
+          <div class="cat-opt" onclick="setCat('mov','elite')" id="cm-elite">Élite</div>
+          <div class="cat-opt" onclick="setCat('mov','primera')" id="cm-primera">Primera</div>
+        </div>
+      </div>
+      <div class="actual-tag" id="tag-mov" style="margin-bottom:14px"></div>
+
+      <div class="cat-row">
+        <div class="cat-lbl" style="color:var(--cyan)">🛑 Parado</div>
+        <div class="cat-opts">
+          <div class="cat-opt" onclick="setCat('par','elite')" id="cp-elite">Élite</div>
+          <div class="cat-opt" onclick="setCat('par','primera')" id="cp-primera">Primera</div>
+        </div>
+      </div>
+      <div class="actual-tag" id="tag-par"></div>
+
+      <div class="fg" style="margin-top:16px">
+        <label>¿Por qué solicitas ese cambio? (opcional)</label>
+        <textarea id="f-motivo" rows="2" placeholder="Solo si pides cambiar de categoría"></textarea>
+      </div>
+    </div>
+
+    <!-- PASO 5: cambio de nombre -->
+    <div class="card hidden" id="card-cambio">
+      <div class="ch" style="color:var(--gold)">5 · ¿Quieres cambiar tu nombre en el ranking?</div>
+      <div class="fg">
+        <label>Nombre nuevo que solicitas (opcional)</label>
+        <input id="f-nombre-nuevo" placeholder="Déjalo vacío si no quieres cambiarlo">
+        <div class="hint">Tu histórico de puntos y títulos se conserva íntegro. Solo cambia cómo se te ve.</div>
+      </div>
+    </div>
+
+    <!-- PASO 6: contacto privado -->
+    <div class="card privado hidden" id="card-contacto">
+      <div class="ch" style="color:var(--gold)">6 · Contacto <span style="font-size:.7rem;font-weight:400;letter-spacing:0;text-transform:none;color:var(--tx3)">(privado)</span></div>
+      <div class="aviso" style="background:rgba(245,195,0,.06);border-color:rgba(245,195,0,.25)">
+        🔒 Estos datos <strong>nunca se publican</strong>. Solo los ve la organización para avisarte
+        de sorteos, cambios de categoría o incidencias.
+      </div>
+
+      <div class="fg">
+        <label>Nombre y apellidos reales <span style="color:var(--r)">*</span></label>
+        <input id="f-real" placeholder="Nombre completo">
+        <div class="err" id="err-real">Escribe tu nombre real</div>
+      </div>
+
+      <div class="fg">
+        <label>Email <span style="color:var(--r)">*</span></label>
+        <input id="f-email" type="email" placeholder="tucorreo@ejemplo.com">
+        <div class="err" id="err-email">Email no válido</div>
+      </div>
+
+      <div class="fg">
+        <label>Teléfono <span style="color:var(--r)">*</span></label>
+        <input id="f-tel" type="tel" placeholder="6XX XXX XXX">
+        <div class="err" id="err-tel">Teléfono no válido (9 dígitos)</div>
+      </div>
+    </div>
+
+    <div class="hidden" id="submit-zone">
+      <button class="btn btn-p" id="btn-enviar" onclick="enviar()">📨 Enviar registro</button>
+      <div class="err" id="err-envio" style="text-align:center;margin-top:8px"></div>
+      <div class="hint" style="text-align:center;margin-top:10px">
+        Recibirás un email de confirmación con lo que has enviado.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PANTALLA OK -->
+  <div class="ok-screen hidden" id="ok-zone">
+    <div class="i">✅</div>
+    <h2>Registro enviado</h2>
+    <p style="color:var(--tx2);margin-bottom:20px">
+      Gracias. La organización revisará tus datos antes de la próxima temporada.
+      Te llegará un email de confirmación.
+    </p>
+    <button class="btn btn-o" onclick="location.reload()">Registrar a otro jugador</button>
+  </div>
+
+  <!-- NOTA DE PRUEBAS: quitar en producción -->
+  <div class="dev-note" id="dev-note">
+    <strong>⚙️ MODO PRUEBA</strong> — Esto es un prototipo aislado, no toca la base del ranking.
+    Al enviar, aquí abajo verás <strong>exactamente la fila que se escribiría en el Excel de Drive</strong>,
+    para que compruebes que las columnas encajan con el importador de la app.
+    <div id="dev-output"></div>
+  </div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  PEGA AQUÍ LA URL QUE TE DA GOOGLE AL PUBLICAR EL APPS SCRIPT
+//  (mientras no la pongas, la página funciona en modo prueba)
+// ══════════════════════════════════════════════════════════════
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrIdjd3ZaEvC0xccvYqVE4BfFq-J48uZon6BznfGJdEg51WEergu8cIqdNBsqUukzQ/exec';
+
+// ══ BASE DE JUGADORES (se regenera exportando desde la app) ══
+const JUGADORES = [{"id":"j1778572775276","n":"Aarón","z":"Paiosaco","cm":"primera","cp":"primera"},{"id":"j1778472790513125","n":"Aarón Lugo","z":"","cm":"primera","cp":"elite"},{"id":"j177847279051285","n":"Abel","z":"Rías Baixas","cm":"primera","cp":"elite"},{"id":"j1778472790513126","n":"Adri","z":"","cm":"primera","cp":"primera"},{"id":"j17784727905100","n":"Adri Amoeiro","z":"Ourense","cm":"elite","cp":"elite"},{"id":"j1778566344834","n":"Adri Vigo","z":"Rías Baixas","cm":"primera","cp":"primera"},{"id":"j1778472790513127","n":"Adrián Val.","z":"","cm":"primera","cp":"primera"},{"id":"j17784727905101","n":"Aitor Palencia","z":"Palencia","cm":"elite","cp":"elite"},{"id":"j177847279051287","n":"Aitor Ponf.","z":"Ponferrada","cm":"primera","cp":"elite"},{"id":"j1778472790513128","n":"Aitor Vall.","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790513129","n":"Alberto Coruña","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790513130","n":"Alberto Cruces","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051288","n":"Alberto Lugo","z":"Lugo","cm":"primera","cp":"elite"},{"id":"j1778661832900","n":"Alberto Sarria","z":"Sarria","cm":"elite","cp":"elite"},{"id":"j1778472790513131","n":"Alejandro García","z":"","cm":"primera","cp":"primera"},{"id":"j1778661289178","n":"Alejandro Rosal","z":"O Rosal","cm":"primera","cp":"primera"},{"id":"j177847279051136","n":"Antonio","z":"Rías Baixas","cm":"primera","cp":"primera"},{"id":"j1778472790513132","n":"Antón Val.","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051289","n":"Ares","z":"Rabade","cm":"primera","cp":"elite"},{"id":"j1778472790513133","n":"Argy","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790513135","n":"Armando Lugo","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790513137","n":"Asier Ponf.","z":"","cm":"primera","cp":"primera"},{"id":"j17784727905102","n":"Barciela","z":"Rías Baixas","cm":"elite","cp":"elite"},{"id":"j1778472790513138","n":"Bayón","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790513139","n":"Berni","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051137","n":"Berto","z":"Cantabria","cm":"elite","cp":"primera"},{"id":"j177847279051138","n":"Bertín Sarria","z":"Sarria","cm":"elite","cp":"elite"},{"id":"j1778472790513141","n":"Blanco","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051291","n":"Blanquito","z":"Ponferrada","cm":"primera","cp":"elite"},{"id":"j177847279051139","n":"Bolaños","z":"León","cm":"elite","cp":"elite"},{"id":"j177847279051140","n":"Boli","z":"Rías Baixas","cm":"elite","cp":"primera"},{"id":"j1778572758609","n":"Borja","z":"Ordes","cm":"primera","cp":"primera"},{"id":"j1778485755790","n":"Borja Martínez","z":"","cm":"primera","cp":"primera"},{"id":"j1778661278593","n":"Borja Rosal","z":"O Rosal","cm":"primera","cp":"primera"},{"id":"j1778572806862","n":"Borjita","z":"Paiosaco","cm":"primera","cp":"primera"},{"id":"j1778472790513142","n":"Brais Ferrol","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051142","n":"Brais Lalín","z":"Lalín","cm":"elite","cp":"primera"},{"id":"j177847279051143","n":"Brais Melide","z":"Melide","cm":"primera","cp":"primera"},{"id":"j1778472790513143","n":"Brais Ordes","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790513144","n":"Brais PV","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790513145","n":"Brian Pal.","z":"","cm":"elite","cp":"elite"},{"id":"j17784727905103","n":"Brian Vall.","z":"Valladolid","cm":"elite","cp":"elite"},{"id":"j17784727905104","n":"Brian Vigo","z":"Rías Baixas","cm":"elite","cp":"elite"},{"id":"j177847279051292","n":"Bubby","z":"Lugo","cm":"elite","cp":"elite"},{"id":"j1778472790513146","n":"Buchery","z":"","cm":"primera","cp":"primera"},{"id":"j17784727905105","n":"Búa","z":"Rías Baixas","cm":"elite","cp":"elite"},{"id":"j177847279051145","n":"Calviño","z":"Coruña","cm":"elite","cp":"primera"},{"id":"j1778472790513147","n":"Cantinflas","z":"","cm":"primera","cp":"primera"},{"id":"j1778661262057","n":"Carlos Rosal","z":"O Rosal","cm":"primera","cp":"primera"},{"id":"j1778568168945","n":"Carmen","z":"Asturias","cm":"primera","cp":"primera"},{"id":"j177847279051146","n":"Carril","z":"Melide","cm":"elite","cp":"primera"},{"id":"j1778660270938","n":"Cati","z":"Rías Baixas","cm":"primera","cp":"primera"},{"id":"j177847279051147","n":"Cazorla","z":"","cm":"elite","cp":"primera"},{"id":"j17784727905106","n":"Celes","z":"Rías Baixas","cm":"elite","cp":"elite"},{"id":"j177847279051148","n":"Celso","z":"Rías Baixas","cm":"elite","cp":"primera"},{"id":"j177847279051294","n":"Chechu","z":"Rabade","cm":"primera","cp":"elite"},{"id":"j1778472790513149","n":"Chema","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790513150","n":"Chesku","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790513151","n":"Chris","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051149","n":"Christian","z":"","cm":"elite","cp":"elite"},{"id":"j1778472790514152","n":"Chuso","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790514153","n":"Cobo","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051293","n":"Codina","z":"Barcelona","cm":"elite","cp":"elite"},{"id":"j1778472790514154","n":"Costoya","z":"","cm":"primera","cp":"primera"},{"id":"j17784727905107","n":"Couso","z":"Asturias","cm":"elite","cp":"elite"},{"id":"j17784727905108","n":"Cristian DT","z":"León","cm":"elite","cp":"elite"},{"id":"j1778472790514155","n":"Cristian Martínez","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051295","n":"Cueto","z":"Cantabria","cm":"primera","cp":"primera"},{"id":"j1778472790514156","n":"Currucho","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051150","n":"Cuspi","z":"Rías Baixas","cm":"elite","cp":"primera"},{"id":"j177847279051296","n":"César","z":"Rabade","cm":"primera","cp":"elite"},{"id":"j1778472790514157","n":"Cío","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790514158","n":"Damián","z":"","cm":"primera","cp":"primera"},{"id":"j17784727905109","n":"Dani Blanco","z":"Valladolid","cm":"elite","cp":"elite"},{"id":"j1778472790514160","n":"Dani PV","z":"","cm":"primera","cp":"primera"},{"id":"j1778661253307","n":"Dani Rosal","z":"O Rosal","cm":"primera","cp":"primera"},{"id":"j1778472790514161","n":"Diego Cruces","z":"","cm":"primera","cp":"primera"},{"id":"j1778661232056","n":"Diego Ferrol","z":"Mariña","cm":"primera","cp":"primera"},{"id":"j1778472790514162","n":"Diego León","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790514166","n":"Diego Ponf.","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790514167","n":"Diego Pont.","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051297","n":"Diego Rábade","z":"Rabade","cm":"primera","cp":"elite"},{"id":"j1778472790514168","n":"Diego Xinzo","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051152","n":"Dieguito","z":"Lalín","cm":"elite","cp":"primera"},{"id":"j1778572853150","n":"Diesus","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790514169","n":"Donoso","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790514170","n":"Edu","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790514171","n":"Expo","z":"","cm":"primera","cp":"primera"},{"id":"j1778661244856","n":"Exposito PV","z":"Asturias","cm":"primera","cp":"primera"},{"id":"j1778566332649","n":"Fabinho","z":"A Estrada","cm":"primera","cp":"primera"},{"id":"j1778472790514172","n":"Falcón","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051299","n":"Felipe","z":"Rabade","cm":"primera","cp":"elite"},{"id":"j1778472790512100","n":"Fer","z":"Lugo","cm":"elite","cp":"elite"},{"id":"j1778472790514173","n":"Fer León","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790514174","n":"Fibras","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051010","n":"Fran Muñiz","z":"Cantabria","cm":"elite","cp":"elite"},{"id":"j1778568151491","n":"Fran Pin","z":"Asturias","cm":"primera","cp":"primera"},{"id":"j1780851447077","n":"Freire Melide","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790514175","n":"Félix Val.","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790514176","n":"Gabri León","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790512101","n":"Gaby","z":"Rabade","cm":"primera","cp":"elite"},{"id":"j1778472790514177","n":"Gafe","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790514178","n":"Gago","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051011","n":"García","z":"Asturias","cm":"elite","cp":"elite"},{"id":"j1784185490176","n":"Gema","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790512102","n":"Gilsanz","z":"Valladolid","cm":"primera","cp":"primera"},{"id":"j1778472790514179","n":"Granja","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790514180","n":"Guille León","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051012","n":"Guillermo","z":"Outes","cm":"elite","cp":"elite"},{"id":"j1778661295860","n":"Gustavo","z":"O Rosal","cm":"primera","cp":"primera"},{"id":"j1778472790514181","n":"Gómez","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790514182","n":"Hectorín","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790514183","n":"Hermi PV","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051013","n":"Herreras","z":"Valladolid","cm":"primera","cp":"elite"},{"id":"j1778472790514184","n":"Hidalgo","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051014","n":"Héctor","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790514185","n":"Héctor León","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790514186","n":"Héctor Pont.","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051153","n":"Iago Porriño","z":"Rías Baixas","cm":"elite","cp":"elite"},{"id":"j177847279051015","n":"Iago Sarria","z":"Sarria","cm":"elite","cp":"elite"},{"id":"j1778472790512103","n":"Isaac","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790515187","n":"Isaac Our.","z":"","cm":"primera","cp":"primera"},{"id":"j1778568100855","n":"Isma","z":"Asturias","cm":"primera","cp":"primera"},{"id":"j1778472790515188","n":"Ivi Val.","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051016","n":"Iván","z":"Melide","cm":"elite","cp":"elite"},{"id":"j1778472790515189","n":"Iván Chis","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790515190","n":"Iván León","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790515191","n":"Iván Sarria","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790516192","n":"Jaci","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790516193","n":"Jaco","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790512104","n":"Jacob","z":"","cm":"primera","cp":"elite"},{"id":"j177847279051154","n":"Jandro","z":"Asturias","cm":"elite","cp":"elite"},{"id":"j177847279051155","n":"Javi Laya","z":"Melide","cm":"elite","cp":"elite"},{"id":"j177847279051017","n":"Javi Ruíz","z":"Cantabria","cm":"elite","cp":"elite"},{"id":"j1778661220306","n":"Javier Ferrol","z":"Mariña","cm":"primera","cp":"primera"},{"id":"j1778472790512105","n":"Javito","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790516194","n":"Javito Ortegal","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790516195","n":"Javito PV","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790516196","n":"Javito Rábade","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790516197","n":"Jesús García","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790512106","n":"Joel","z":"","cm":"primera","cp":"elite"},{"id":"j177847279051018","n":"Joninho","z":"Sarria","cm":"elite","cp":"elite"},{"id":"j1778472790516199","n":"Jony Coruña","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790516200","n":"Jony Ponf.","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790516201","n":"Jorge PV","z":"","cm":"primera","cp":"primera"},{"id":"j1778661307562","n":"Jorge Rosal","z":"O Rosal","cm":"primera","cp":"primera"},{"id":"j177847279051019","n":"Jorge Vall.","z":"Valladolid","cm":"primera","cp":"elite"},{"id":"j1778472790513108","n":"Jose Cantabria","z":"Cantabria","cm":"primera","cp":"elite"},{"id":"j1778472790516202","n":"José Luis","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790516203","n":"Juan Coruña","z":"Coruña","cm":"primera","cp":"primera"},{"id":"j1778472790513109","n":"Juan Huelva","z":"Huelva","cm":"elite","cp":"primera"},{"id":"j177847279051156","n":"Juan Lugo","z":"Mariña Lucense","cm":"primera","cp":"elite"},{"id":"j177847279051120","n":"Juandi","z":"Sevilla","cm":"elite","cp":"elite"},{"id":"j1778472790516204","n":"Juanin","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790516205","n":"Julio","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790516206","n":"Juán Mariña","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790516207","n":"Keko","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790516208","n":"Keko PV","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790516209","n":"Kevin","z":"","cm":"primera","cp":"primera"},{"id":"j1778563344467","n":"Kike Pontevedra","z":"Rías Baixas","cm":"elite","cp":"elite"},{"id":"j177847279051157","n":"Kike Santander","z":"Cantabria","cm":"elite","cp":"primera"},{"id":"j1778472790516210","n":"Kiki","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790513110","n":"Kristofer","z":"Ponferrada","cm":"primera","cp":"elite"},{"id":"j1778472790516211","n":"Lage","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790513111","n":"Litos","z":"Lugo","cm":"primera","cp":"elite"},{"id":"j1778472790516212","n":"Lix","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051158","n":"Lobato","z":"Sevilla","cm":"elite","cp":"primera"},{"id":"j1778566203056","n":"Lois","z":"Melide","cm":"primera","cp":"primera"},{"id":"j1778472790513112","n":"Lolo","z":"Rabade","cm":"primera","cp":"primera"},{"id":"j177847279051159","n":"Lozano","z":"Castellón","cm":"elite","cp":"primera"},{"id":"j1778472790516215","n":"Luis León","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790516213","n":"Luis PV","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790516216","n":"Luisinho","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051160","n":"Lupi","z":"Santiago","cm":"elite","cp":"elite"},{"id":"j177847279051161","n":"Lupi Vigo","z":"Rías Baixas","cm":"elite","cp":"primera"},{"id":"j1778472790516217","n":"Luís Val.","z":"","cm":"primera","cp":"primera"},{"id":"j1778572884021","n":"Machado","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790513113","n":"Manolete","z":"Mariña Lucense","cm":"primera","cp":"elite"},{"id":"j1778472790516218","n":"Manolito Paiosaco","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051262","n":"Manolo Melide","z":"Melide","cm":"primera","cp":"primera"},{"id":"j177847279051263","n":"Manu","z":"","cm":"elite","cp":"primera"},{"id":"j1778472790518219","n":"Manu Ceporro","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790518220","n":"Manu Cruces","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051121","n":"Manu Sarria","z":"Sarria","cm":"elite","cp":"elite"},{"id":"j177847279051264","n":"Manu Vigo","z":"Rías Baixas","cm":"elite","cp":"primera"},{"id":"j177847279051122","n":"Marco","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051265","n":"Marcos","z":"Santiago","cm":"elite","cp":"elite"},{"id":"j1778472790518221","n":"Marfer","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790518222","n":"Mariete","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790513114","n":"Mario Rábade","z":"Rabade","cm":"primera","cp":"elite"},{"id":"j1778472790518223","n":"Mariño","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051266","n":"Maroto","z":"Rías Baixas","cm":"elite","cp":"primera"},{"id":"j1778472790518224","n":"Marzán","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790518225","n":"Meche","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051123","n":"Michi","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790518227","n":"Michu Lalín","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790518228","n":"Miguel Vall.","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790518229","n":"Miguelón","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051124","n":"Migui","z":"Rías Baixas","cm":"elite","cp":"elite"},{"id":"j177847279051267","n":"Moi","z":"Rías Baixas","cm":"elite","cp":"primera"},{"id":"j1778661801413","n":"Morales","z":"Rías Baixas","cm":"primera","cp":"primera"},{"id":"j1778472790518231","n":"Mouzo","z":"","cm":"primera","cp":"primera"},{"id":"j1778566322432","n":"Muras","z":"A Estrada","cm":"primera","cp":"primera"},{"id":"j1778472790518232","n":"Míchel Lalín","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790518233","n":"Míguez","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790518234","n":"Nacho PV","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790518235","n":"Naico","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790518236","n":"Nevado","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051268","n":"Nieto","z":"Rías Baixas","cm":"elite","cp":"primera"},{"id":"j177847279051125","n":"Nino","z":"Rías Baixas","cm":"elite","cp":"elite"},{"id":"j1778660291541","n":"Noel","z":"Rías Baixas","cm":"primera","cp":"primera"},{"id":"j1778472790518237","n":"Novo","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790518238","n":"Nowitzki","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051126","n":"Osquilla","z":"Málaga","cm":"elite","cp":"elite"},{"id":"j1778472790519240","n":"Paco","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790519241","n":"Paisa","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051269","n":"Palomo","z":"Castellón","cm":"elite","cp":"elite"},{"id":"j1778472790519242","n":"Palotes","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051270","n":"Parra","z":"Asturias","cm":"elite","cp":"primera"},{"id":"j1778660227204","n":"Paula","z":"Lalín","cm":"primera","cp":"primera"},{"id":"j1778472790519243","n":"Pety","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790519244","n":"Pillín","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051271","n":"Polilla","z":"Sevilla","cm":"elite","cp":"primera"},{"id":"j1778472790519245","n":"Pozu","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790519246","n":"Presa","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790519247","n":"Pérez","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051272","n":"Quintela","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790513116","n":"Raúl","z":"Lugo","cm":"primera","cp":"primera"},{"id":"j1778472790519248","n":"Reina PV","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790513117","n":"Reinín","z":"Rabade","cm":"primera","cp":"primera"},{"id":"j1778472790519249","n":"Richi León","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790519250","n":"Rivero","z":"","cm":"primera","cp":"primera"},{"id":"j1778660198585","n":"Rober","z":"Coruña","cm":"primera","cp":"primera"},{"id":"j1778472790519251","n":"Roberto Lalín","z":"","cm":"elite","cp":"primera"},{"id":"j1778472790519252","n":"Roca","z":"","cm":"primera","cp":"primera"},{"id":"j1778660543243","n":"Rocío Ourense","z":"Ourense","cm":"primera","cp":"primera"},{"id":"j177847279051273","n":"Rodri","z":"Asturias","cm":"elite","cp":"primera"},{"id":"j1778568122306","n":"Rubi","z":"Asturias","cm":"primera","cp":"primera"},{"id":"j1778472790520255","n":"Rubén Rábade","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790520256","n":"Ruc","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790513118","n":"Samu León","z":"León","cm":"primera","cp":"elite"},{"id":"j1778472790520257","n":"Samu PV","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790520258","n":"Samuel Ordes","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790520259","n":"Santalla","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051127","n":"Santi","z":"Rías Baixas","cm":"elite","cp":"elite"},{"id":"j1778472790520260","n":"Santi León","z":"","cm":"primera","cp":"primera"},{"id":"j1780851454744","n":"Seo Melide","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790520261","n":"Sergi","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051274","n":"Sergio","z":"","cm":"elite","cp":"primera"},{"id":"j1778472790520262","n":"Sergio Amoeiro","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790520263","n":"Sergio Cruces","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051128","n":"Sergio DT","z":"León","cm":"elite","cp":"elite"},{"id":"j177847279051275","n":"Sergio González","z":"Asturias","cm":"elite","cp":"primera"},{"id":"j177847279051276","n":"Sergio León","z":"León","cm":"elite","cp":"elite"},{"id":"j1778472790520264","n":"Sergio Ponf.","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051129","n":"Sergitox","z":"Zaragoza","cm":"elite","cp":"elite"},{"id":"j1778472790521265","n":"Sevi","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790521266","n":"Suso Alén","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051277","n":"Suso Cruces","z":"Cruces","cm":"elite","cp":"primera"},{"id":"j1778472790513119","n":"Suso Rábade","z":"Rabade","cm":"primera","cp":"elite"},{"id":"j177847279051278","n":"Taboada","z":"Zaragoza","cm":"elite","cp":"elite"},{"id":"j1778472790521267","n":"Teixeira","z":"","cm":"primera","cp":"primera"},{"id":"j1780851422257","n":"Templay","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790521268","n":"Tete","z":"","cm":"primera","cp":"primera"},{"id":"j1778568132258","n":"Tino","z":"Asturias","cm":"primera","cp":"primera"},{"id":"j1778472790521270","n":"Tolete","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051130","n":"Tomás","z":"Rías Baixas","cm":"elite","cp":"elite"},{"id":"j1778472790521271","n":"Toneku","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051279","n":"Toni","z":"Sevilla","cm":"elite","cp":"primera"},{"id":"j1778472790513120","n":"Toni Castellón","z":"Castellón","cm":"primera","cp":"elite"},{"id":"j1778472790521272","n":"Topero","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790513121","n":"Torino","z":"Lugo","cm":"primera","cp":"elite"},{"id":"j1778472790521273","n":"Torzón","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051280","n":"Totti","z":"Asturias","cm":"elite","cp":"primera"},{"id":"j1778472790521274","n":"Toño León","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790521275","n":"Toñín","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790513122","n":"Támoga","z":"Rabade","cm":"primera","cp":"primera"},{"id":"j1778472790521276","n":"Valado","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790521277","n":"Valentín","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051131","n":"Valín","z":"Sarria","cm":"elite","cp":"elite"},{"id":"j1778472790521278","n":"Vane PV","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790521279","n":"Varela","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051281","n":"Veni","z":"Coruña","cm":"elite","cp":"primera"},{"id":"j1778472790522280","n":"Vilariño","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051132","n":"Villa","z":"Valladolid","cm":"elite","cp":"elite"},{"id":"j1778472790522281","n":"Villaesteba","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790522282","n":"Villar","z":"","cm":"primera","cp":"primera"},{"id":"j1778660574461","n":"Ville","z":"Rías Baixas","cm":"primera","cp":"primera"},{"id":"j1778472790522283","n":"Virgil","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790522284","n":"Viti","z":"","cm":"primera","cp":"primera"},{"id":"j1784702118271","n":"Vito","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790522285","n":"Vizca","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051133","n":"Víctor","z":"Valladolid","cm":"elite","cp":"elite"},{"id":"j1778472790522286","n":"Víctor Ast.","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790522287","n":"Víctor Betanzos","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790522288","n":"Víctor PV","z":"","cm":"primera","cp":"primera"},{"id":"j1778568161327","n":"Wayne","z":"Asturias","cm":"primera","cp":"primera"},{"id":"j1778472790522289","n":"Xabi Cruces","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051282","n":"Xandre","z":"Lalín","cm":"elite","cp":"primera"},{"id":"j1778472790513123","n":"Xoel Lugo","z":"Lugo","cm":"primera","cp":"elite"},{"id":"j1778472790522290","n":"Yago Estrada","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790522291","n":"Yago Our.","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051283","n":"Yeray","z":"Melide","cm":"elite","cp":"primera"},{"id":"j1778661271308","n":"Yeray PV","z":"Asturias","cm":"primera","cp":"primera"},{"id":"j1778472790522292","n":"Yeya","z":"","cm":"primera","cp":"primera"},{"id":"j1778568115489","n":"Zafiro","z":"Asturias","cm":"primera","cp":"primera"},{"id":"j1778472790522293","n":"Zapico","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790522294","n":"Zary Lugo","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790522295","n":"Álejandro Cuíña","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790522297","n":"Álex Cruces","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790523298","n":"Álex Lugo","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790523299","n":"Álex Our.","z":"","cm":"primera","cp":"primera"},{"id":"j177847279051134","n":"Álex Ponf.","z":"Ponferrada","cm":"elite","cp":"elite"},{"id":"j1778472790523300","n":"Álex Rábade","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790523301","n":"Álex Vigo","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790523302","n":"Álex Xinzo","z":"","cm":"primera","cp":"primera"},{"id":"j1778472790513124","n":"Álvaro","z":"Rabade","cm":"primera","cp":"elite"},{"id":"j1778568141841","n":"Ángel Pin","z":"Asturias","cm":"primera","cp":"primera"},{"id":"j177847279051284","n":"Óscar Melide","z":"Melide","cm":"elite","cp":"primera"},{"id":"j177847279051135","n":"Óscar Málaga","z":"Málaga","cm":"elite","cp":"elite"}];
+
+const ZONAS = ["A Estrada","Asturias","Barcelona","Cantabria","Castellón","Coruña","Cruces","Huelva","Lalín","León","Lugo","Mariña","Mariña Lucense","Melide","Málaga","O Rosal","Ordes","Ourense","Outes","Paiosaco","Palencia","Ponferrada","Rabade","Rías Baixas","Santiago","Sarria","Sevilla","Valladolid","Zaragoza"];
+
+let tipo=null, jugadorSel=null, catMov=null, catPar=null;
+
+// Rellenar zonas
+const selZona=document.getElementById('f-zona');
+ZONAS.forEach(z=>{
+  const o=document.createElement('option'); o.value=z; o.textContent=z; selZona.appendChild(o);
+});
+const oOtra=document.createElement('option'); oOtra.value='Otra'; oOtra.textContent='Otra / no está en la lista';
+selZona.appendChild(oOtra);
+
+function setTipo(t){
+  tipo=t; jugadorSel=null;
+  document.getElementById('tipo-existente').classList.toggle('on',t==='existente');
+  document.getElementById('tipo-nuevo').classList.toggle('on',t==='nuevo');
+  document.getElementById('card-buscar').classList.toggle('hidden',t!=='existente');
+  document.getElementById('picked-box').innerHTML='';
+  document.getElementById('search-box').classList.remove('hidden');
+  document.getElementById('q').value='';
+  if(t==='nuevo'){
+    mostrarResto(true);
+    document.getElementById('f-nombre').value='';
+    document.getElementById('f-alias').value='';
+    selZona.value='';
+    catMov='primera'; catPar='primera';
+    pintarCats();
+    document.getElementById('tag-mov').textContent='Los jugadores nuevos empiezan en Primera salvo que la organización decida otra cosa.';
+    document.getElementById('tag-par').textContent='';
+    document.getElementById('card-cambio').classList.add('hidden');
+  } else {
+    mostrarResto(false);
+  }
+}
+
+function mostrarResto(v){
+  ['card-datos','card-cats','card-contacto','submit-zone'].forEach(id=>{
+    document.getElementById(id).classList.toggle('hidden',!v);
+  });
+}
+
+function norm(s){
+  return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+
+function buscar(){
+  const q=norm(document.getElementById('q').value.trim());
+  const box=document.getElementById('results');
+  if(!q){ box.style.display='none'; return; }
+  const hits=JUGADORES.filter(j=>norm(j.n).includes(q)).slice(0,30);
+  if(!hits.length){
+    box.innerHTML='<div style="color:var(--tx3);cursor:default">Sin resultados — si eres nuevo, marca "Soy nuevo" arriba</div>';
+    box.style.display='block'; return;
+  }
+  box.innerHTML=hits.map(j=>
+    `<div onclick="elegir('${j.id}')"><strong>${j.n}</strong>${j.z?` <span class="zona">· ${j.z}</span>`:''}</div>`
+  ).join('');
+  box.style.display='block';
+}
+
+function elegir(id){
+  const j=JUGADORES.find(x=>x.id===id);
+  if(!j) return;
+  jugadorSel=j;
+  document.getElementById('results').style.display='none';
+  document.getElementById('search-box').classList.add('hidden');
+  document.getElementById('picked-box').innerHTML=
+    `<div class="picked">
+      <span style="font-size:1.2rem">✅</span>
+      <div class="n">${j.n}<div class="cur">${j.z||'sin zona'} · ⚡ ${j.cm==='elite'?'Élite':'Primera'} · 🛑 ${j.cp==='elite'?'Élite':'Primera'}</div></div>
+      <button class="btn btn-o" style="padding:6px 12px;font-size:.75rem" onclick="setTipo('existente')">Cambiar</button>
+    </div>`;
+
+  document.getElementById('f-nombre').value=j.n;
+  selZona.value=ZONAS.includes(j.z)?j.z:(j.z?'Otra':'');
+  catMov=j.cm; catPar=j.cp;
+  pintarCats();
+  document.getElementById('tag-mov').textContent=`Ahora mismo estás en ${j.cm==='elite'?'Élite':'Primera'} Movimiento.`;
+  document.getElementById('tag-par').textContent=`Ahora mismo estás en ${j.cp==='elite'?'Élite':'Primera'} Parado.`;
+  document.getElementById('hint-nombre').textContent='Si quieres cambiarlo, usa el apartado 5 más abajo (así conservas tu histórico).';
+  document.getElementById('card-cambio').classList.remove('hidden');
+  mostrarResto(true);
+}
+
+function setCat(mod,val){
+  if(mod==='mov') catMov=val; else catPar=val;
+  pintarCats();
+}
+function pintarCats(){
+  document.getElementById('cm-elite').classList.toggle('on',catMov==='elite');
+  document.getElementById('cm-primera').classList.toggle('on',catMov==='primera');
+  document.getElementById('cp-elite').classList.toggle('on',catPar==='elite');
+  document.getElementById('cp-primera').classList.toggle('on',catPar==='primera');
+}
+
+function showErr(id,v){ document.getElementById(id).style.display=v?'block':'none'; }
+
+function enviar(){
+  const nombre=document.getElementById('f-nombre').value.trim();
+  const zona=selZona.value;
+  const real=document.getElementById('f-real').value.trim();
+  const email=document.getElementById('f-email').value.trim();
+  const tel=document.getElementById('f-tel').value.replace(/\s/g,'').trim();
+
+  let ok=true;
+  showErr('err-nombre',!nombre); if(!nombre) ok=false;
+  showErr('err-zona',!zona); if(!zona) ok=false;
+  showErr('err-real',!real); if(!real) ok=false;
+  const emailOk=/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+  showErr('err-email',!emailOk); if(!emailOk) ok=false;
+  const telOk=/^[0-9]{9}$/.test(tel);
+  showErr('err-tel',!telOk); if(!telOk) ok=false;
+  if(!tipo){ alert('Indica arriba si ya has jugado el ranking o eres nuevo'); ok=false; }
+  if(tipo==='existente' && !jugadorSel){ alert('Búscate en la lista para continuar'); ok=false; }
+  if(!ok){ window.scrollTo({top:0,behavior:'smooth'}); return; }
+
+  // ── Fila que se escribiría en el Excel de Drive ──
+  const fila={
+    Fecha: new Date().toLocaleString('es-ES'),
+    ID: jugadorSel ? jugadorSel.id : '',                       // vacío = jugador nuevo
+    'Nombre actual': jugadorSel ? jugadorSel.n : '(nuevo)',
+    Nombre: nombre,
+    'Nombre Real': real,
+    Zona: zona,
+    Alias: document.getElementById('f-alias').value.trim(),
+    'Cat. Movimiento': catMov==='elite'?'Élite':'Primera',
+    'Cat. Parado': catPar==='elite'?'Élite':'Primera',
+    'Cambio nombre solicitado': document.getElementById('f-nombre-nuevo').value.trim(),
+    Motivo: document.getElementById('f-motivo').value.trim(),
+    Email: email,
+    'Teléfono': tel,
+    Estado: 'pendiente'
+  };
+
+  enviarAlScript(fila);
+}
+
+function enviarAlScript(fila){
+  const btn=document.getElementById('btn-enviar');
+  const errBox=document.getElementById('err-envio');
+  errBox.style.display='none';
+
+  // Si aún no has configurado la URL, funciona en modo prueba
+  if(SCRIPT_URL.indexOf('PEGA_AQUI')!==-1){
+    document.getElementById('dev-output').innerHTML=
+      '<pre>'+JSON.stringify(fila,null,2)+'</pre>';
+    irAOk();
+    return;
+  }
+
+  btn.disabled=true;
+  btn.textContent='⏳ Enviando...';
+
+  fetch(SCRIPT_URL,{
+    method:'POST',
+    body:JSON.stringify(fila)
+  })
+  .then(()=>{
+    document.getElementById('dev-output').innerHTML=
+      '<pre>'+JSON.stringify(fila,null,2)+'</pre>';
+    irAOk();
+  })
+  .catch(err=>{
+    console.error(err);
+    btn.disabled=false;
+    btn.textContent='📨 Enviar registro';
+    errBox.textContent='No se ha podido enviar. Revisa tu conexión e inténtalo otra vez.';
+    errBox.style.display='block';
+  });
+}
+
+function irAOk(){
+  document.getElementById('form-zone').classList.add('hidden');
+  document.getElementById('ok-zone').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.search-wrap')) document.getElementById('results').style.display='none';
+});
+</script>
+</body>
+</html>
