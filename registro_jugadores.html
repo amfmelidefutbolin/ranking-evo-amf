@@ -92,12 +92,6 @@ input::placeholder{color:#3d5878}
 .ok-screen .i{font-size:4rem;margin-bottom:14px}
 .ok-screen h2{font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;letter-spacing:2px;color:var(--green);margin-bottom:10px;text-transform:uppercase}
 .hidden{display:none!important}
-.dev-note{
-  margin-top:30px;padding:14px;background:rgba(245,195,0,.06);border:1px dashed rgba(245,195,0,.3);
-  border-radius:10px;font-size:.76rem;color:var(--tx3);line-height:1.6;
-}
-.dev-note strong{color:var(--gold)}
-pre{background:var(--c0);border:1px solid var(--bd);border-radius:8px;padding:12px;overflow-x:auto;font-size:.72rem;color:var(--tx2);margin-top:8px;white-space:pre-wrap;word-break:break-all}
 </style>
 </head>
 <body>
@@ -262,14 +256,6 @@ pre{background:var(--c0);border:1px solid var(--bd);border-radius:8px;padding:12
     <button class="btn btn-o" onclick="location.reload()">Registrar a otro jugador</button>
   </div>
 
-  <!-- NOTA DE PRUEBAS: quitar en producción -->
-  <div class="dev-note" id="dev-note">
-    <strong>⚙️ MODO PRUEBA</strong> — Esto es un prototipo aislado, no toca la base del ranking.
-    Al enviar, aquí abajo verás <strong>exactamente la fila que se escribiría en el Excel de Drive</strong>,
-    para que compruebes que las columnas encajan con el importador de la app.
-    <div id="dev-output"></div>
-  </div>
-
 </div>
 
 <script>
@@ -424,10 +410,8 @@ function enviarAlScript(fila){
   const errBox=document.getElementById('err-envio');
   errBox.style.display='none';
 
-  // Si aún no has configurado la URL, funciona en modo prueba
+  // Si aún no se ha configurado la URL, no se envía (solo muestra la confirmación)
   if(SCRIPT_URL.indexOf('PEGA_AQUI')!==-1){
-    document.getElementById('dev-output').innerHTML=
-      '<pre>'+JSON.stringify(fila,null,2)+'</pre>';
     irAOk();
     return;
   }
@@ -440,8 +424,6 @@ function enviarAlScript(fila){
     body:JSON.stringify(fila)
   })
   .then(()=>{
-    document.getElementById('dev-output').innerHTML=
-      '<pre>'+JSON.stringify(fila,null,2)+'</pre>';
     irAOk();
   })
   .catch(err=>{
